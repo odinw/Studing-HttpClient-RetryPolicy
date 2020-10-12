@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Extensions.Http;
+using System;
 
 namespace Studing_HttpClient_RetryPolicy
 {
@@ -25,6 +22,24 @@ namespace Studing_HttpClient_RetryPolicy
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddHttpClient("a")
+                //.SetHandlerLifetime(Timeout.InfiniteTimeSpan)
+                .AddPolicyHandler
+                (
+                    HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync
+                    (
+                        3,
+                        retryAttempt => TimeSpan.FromSeconds
+                        (
+                            Math.Pow(2, retryAttempt)
+                        ),
+                        onRetry: (exception, retryCount) =>
+                        {
+                            Console.WriteLine($"[{DateTimeOffset.Now}] : 呼叫 API 異常, 進行第 {retryCount} 次重試, Error :{exception.Result.StatusCode}");
+                        }
+                    )
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
