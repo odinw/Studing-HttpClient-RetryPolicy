@@ -23,20 +23,23 @@ namespace Studing_HttpClient_RetryPolicy
         {
             services.AddControllers();
 
-            services.AddHttpClient("a")
-                //.SetHandlerLifetime(Timeout.InfiniteTimeSpan)
+            services.AddHttpClient("Retry")
                 .AddPolicyHandler
                 (
                     HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync
                     (
                         3,
-                        retryAttempt => TimeSpan.FromSeconds
+                        retryInterval => TimeSpan.FromMilliseconds
                         (
-                            Math.Pow(2, retryAttempt)
+                            Math.Pow(2, retryInterval) * 100
                         ),
-                        onRetry: (exception, retryCount) =>
+                        onRetry: (exception, retryInterval) =>
                         {
-                            Console.WriteLine($"[{DateTimeOffset.Now}] : 呼叫 API 異常, 進行第 {retryCount} 次重試, Error :{exception.Result.StatusCode}");
+                            Console.WriteLine(@$"[{DateTimeOffset.Now}] - 
+                                Uri呼叫異常: {exception.Result.RequestMessage.RequestUri}, 
+                                重試間隔時間: {retryInterval} , 
+                                StatusCode: {(int)exception.Result.StatusCode} {exception.Result.StatusCode},
+                                Error: {exception.Exception}");
                         }
                     )
                 );

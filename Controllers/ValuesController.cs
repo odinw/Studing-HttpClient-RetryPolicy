@@ -12,7 +12,7 @@ namespace Studing_HttpClient_RetryPolicy.Controllers
 
         public ValuesController(IHttpClientFactory httpClientFactory)
         {
-            client = httpClientFactory.CreateClient("a");
+            client = httpClientFactory.CreateClient("Retry");
         }
 
         [HttpGet("[action]")]
@@ -25,6 +25,7 @@ namespace Studing_HttpClient_RetryPolicy.Controllers
             // fail
             var fail = client.GetAsync("https://run.mocky.io/v3/b4498bd3-c223-4296-a467-bfdc2b740fc6").Result;
             Console.WriteLine($"fail StatusCode: {fail.StatusCode}");
+
             return Ok();
         }
     }
