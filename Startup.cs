@@ -28,14 +28,14 @@ namespace Studing_HttpClient_RetryPolicy
                 (
                     HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync
                     (
-                        3,
+                        5,
                         retryInterval => TimeSpan.FromMilliseconds
                         (
                             Math.Pow(2, retryInterval) * 100
                         ),
                         onRetry: (exception, retryInterval) =>
                         {
-                            Console.WriteLine(@$"[{DateTimeOffset.Now}] - 
+                            Console.WriteLine(@$"[{DateTimeOffset.Now.ToString("o")}] - 
                                 Uri呼叫異常: {exception.Result.RequestMessage.RequestUri}, 
                                 重試間隔時間: {retryInterval} , 
                                 StatusCode: {(int)exception.Result.StatusCode} {exception.Result.StatusCode},
